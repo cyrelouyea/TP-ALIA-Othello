@@ -1,0 +1,365 @@
+:- dynamic board/1.
+
+gameover(Board, Winner) :-
+    winner(Board, Winner), 
+    !.
+gameover(Board, 'Draw') :-
+    isFinished(Board).
+
+winner(Board, 'x') :- 
+    nbPawnPlayer(Board, 'x', NbPawn),
+    isFinished(Board),
+    NbPawn > 32,
+    !.
+winner(Board, 'o') :- 
+    nbPawnPlayer(Board, 'o', NbPawn),
+    isFinished(Board),
+    NbPawn > 32,
+    !.
+
+isFinished(Board) :-
+    not(canplay(Board, 'x')),
+    not(canplay(Board, 'o')).
+
+canplay(Board, Player) :-
+    canplay(Board, Board, Player, 0).
+canplay(Board, [H|_], Player, N) :-
+    var(H),
+    isPositionPlayable(Board, Player, N),
+    !.
+canplay(Board, [_|T], Player, N) :-
+    N1 is N + 1,
+    N1 < 64,
+    canplay(Board, T, Player, N1),
+    !.
+
+isPositionPlayable(Board, Player, N) :-
+    N1 is N - 8,
+    capturePawn(Board, BoardT, Player, N1),
+    findPlayerTop(BoardT, _, Player, N1),
+    !.
+isPositionPlayable(Board, Player, N) :-
+    N1 is N - 7,
+    mod(N1, 8) > mod(N, 8),
+    capturePawn(Board, BoardTR, Player, N1),
+    findPlayerTopRight(BoardTR, _, Player, N1),
+    !.
+isPositionPlayable(Board, Player, N) :-
+    N1 is N + 1,
+    mod(N1, 8) > mod(N, 8),
+    capturePawn(Board, BoardR, Player, N1),
+    findPlayerRight(BoardR, _, Player, N1),
+    !.
+isPositionPlayable(Board, Player, N) :-
+    N1 is N + 9,
+    mod(N1, 8) > mod(N, 8),
+    capturePawn(Board, BoardBR, Player, N1),
+    findPlayerBottomRight(BoardBR, _, Player, N1),
+    !.
+isPositionPlayable(Board, Player, N) :-
+    N1 is N + 8,
+    capturePawn(Board, BoardR, Player, N1),
+    findPlayerBottom(BoardR, _, Player, N1),
+    !.
+isPositionPlayable(Board, Player, N) :-
+    N1 is N + 7,
+    mod(N1, 8) < mod(N, 8),
+    capturePawn(Board, BoardBL, Player, N1),
+    findPlayerBottomLeft(BoardBL, _, Player, N1),
+    !.
+isPositionPlayable(Board, Player, N) :-
+    N1 is N - 1,
+    mod(N1, 8) < mod(N, 8),
+    capturePawn(Board, BoardL, Player, N1),
+    findPlayerLeft(BoardL, _, Player, N1),
+    !.
+isPositionPlayable(Board, Player, N) :-
+    N1 is N - 9,
+    mod(N1, 8) < mod(N, 8),
+    capturePawn(Board, BoardTL, Player, N1),
+    findPlayerTopLeft(BoardTL, _, Player, N1),
+    !.
+
+
+nbPawnPlayer([], _, 0).
+nbPawnPlayer([H|T], Player, NbPawn) :-
+    nonvar(H),
+    H == Player,
+    nbPawnPlayer(T, Player, NbPawnPrev),
+    NbPawn is NbPawnPrev + 1,
+    !.
+nbPawnPlayer([_|T], Player, NbPawn) :-
+    nbPawnPlayer(T, Player, NbPawn),
+    !.
+
+printVal(Board, N) :- 
+    nth0(N, Board, Val), 
+    var(Val), 
+    write('?'), 
+    !.
+
+printVal(Board, N):-
+    nth0(N, Board, Val), 
+    write(Val), 
+    !.
+
+displayBoard(Board) :-
+    writeln('*--------------*'),
+    printVal(Board, 0), printVal(Board, 1), printVal(Board, 2), printVal(Board, 3), printVal(Board, 4), printVal(Board, 5), printVal(Board, 6), printVal(Board, 7), writeln(''),
+    printVal(Board, 8), printVal(Board, 9), printVal(Board, 10), printVal(Board, 11), printVal(Board, 12), printVal(Board, 13), printVal(Board, 14), printVal(Board, 15), writeln(''),
+    printVal(Board, 16), printVal(Board, 17), printVal(Board, 18), printVal(Board, 19), printVal(Board, 20), printVal(Board, 21), printVal(Board, 22), printVal(Board, 23), writeln(''),
+    printVal(Board, 24), printVal(Board, 25), printVal(Board, 26), printVal(Board, 27), printVal(Board, 28), printVal(Board, 29), printVal(Board, 30), printVal(Board, 31), writeln(''),
+    printVal(Board, 32), printVal(Board, 33), printVal(Board, 34), printVal(Board, 35), printVal(Board, 36), printVal(Board, 37), printVal(Board, 38), printVal(Board, 39), writeln(''),
+    printVal(Board, 40), printVal(Board, 41), printVal(Board, 42), printVal(Board, 43), printVal(Board, 44), printVal(Board, 45), printVal(Board, 46), printVal(Board, 47), writeln(''),
+    printVal(Board, 48), printVal(Board, 49), printVal(Board, 50), printVal(Board, 51), printVal(Board, 52), printVal(Board, 53), printVal(Board, 54), printVal(Board, 55), writeln(''),
+    printVal(Board, 56), printVal(Board, 57), printVal(Board, 58), printVal(Board, 59), printVal(Board, 60), printVal(Board, 61), printVal(Board, 62), printVal(Board, 63), writeln(''),
+    writeln('*--------------*').
+
+playMove(Board, NewBoard, Player, N) :-
+    Board = NewBoardWithoutCapture,
+    nth0(N, NewBoardWithoutCapture, Player),
+    applyCapture(NewBoardWithoutCapture, NewBoard, Player, N),
+    !.
+
+applyCapture(Board, NewBoard, Player, N) :-
+    captureTop(Board, BoardT, Player, N),
+    captureTopRight(BoardT, BoardTR, Player, N),
+    captureRight(BoardTR, BoardR, Player, N),
+    captureBottomRight(BoardR, BoardBR, Player, N),
+    captureBottom(BoardBR, BoardB, Player, N),
+    captureBottomLeft(BoardB, BoardBL, Player, N),
+    captureLeft(BoardBL, BoardL, Player, N),
+    captureTopLeft(BoardL, NewBoard, Player, N),
+    !.
+
+% TOP
+captureTop(Board, NewBoard, Player, N) :-
+    findPlayerTop(Board, NewBoard, Player, N),
+    !.
+captureTop(Board, NewBoard, _, _) :-
+    Board = NewBoard,
+    !.
+findPlayerTop(Board, NewBoard, Player, N) :-
+    Board = NewBoard,
+    N1 is N - 8,
+    nth0(N1, Board, PlayerN1),
+    nonvar(PlayerN1),
+    PlayerN1 == Player,
+    !.
+findPlayerTop(Board, NewBoard, Player, N) :-
+    N1 is N - 8,
+    capturePawn(Board, BoardT, Player, N1),
+    findPlayerTop(BoardT, NewBoard, Player, N1),
+    !.
+
+% TOP-RIGHT
+captureTopRight(Board, NewBoard, Player, N) :-
+    findPlayerTopRight(Board, NewBoard, Player, N),
+    !.
+captureTopRight(Board, NewBoard, _, _) :-
+    Board = NewBoard,
+    !.
+findPlayerTopRight(Board, NewBoard, Player, N) :-
+    Board = NewBoard,
+    N1 is N - 7,
+    mod(N1, 8) > mod(N, 8),
+    nth0(N1, Board, PlayerN1),
+    nonvar(PlayerN1),
+    PlayerN1 == Player,
+    !.
+findPlayerTopRight(Board, NewBoard, Player, N) :-
+    N1 is N - 7,
+    mod(N1, 8) > mod(N, 8),
+    capturePawn(Board, BoardTR, Player, N1),
+    findPlayerTopRight(BoardTR, NewBoard, Player, N1),
+    !.
+
+% RIGHT
+captureRight(Board, NewBoard, Player, N) :-
+    findPlayerRight(Board, NewBoard, Player, N),
+    !.
+captureRight(Board, NewBoard, _, _) :-
+    Board = NewBoard,
+    !.
+findPlayerRight(Board, NewBoard, Player, N) :-
+    Board = NewBoard,
+    N1 is N + 1,
+    mod(N1, 8) > mod(N, 8),
+    nth0(N1, Board, PlayerN1),
+    nonvar(PlayerN1),
+    PlayerN1 == Player,
+    !.
+findPlayerRight(Board, NewBoard, Player, N) :-
+    N1 is N + 1,
+    mod(N1, 8) > mod(N, 8),
+    capturePawn(Board, BoardR, Player, N1),
+    findPlayerRight(BoardR, NewBoard, Player, N1),
+    !.
+
+% BOTTOM-RIGHT
+captureBottomRight(Board, NewBoard, Player, N) :-
+    findPlayerBottomRight(Board, NewBoard, Player, N),
+    !.
+captureBottomRight(Board, NewBoard, _, _) :-
+    Board = NewBoard,
+    !.
+findPlayerBottomRight(Board, NewBoard, Player, N) :-
+    Board = NewBoard,
+    N1 is N + 9,
+    mod(N1, 8) > mod(N, 8),
+    nth0(N1, Board, PlayerN1),
+    nonvar(PlayerN1),
+    PlayerN1 == Player,
+    !.
+findPlayerBottomRight(Board, NewBoard, Player, N) :-
+    N1 is N + 9,
+    mod(N1, 8) > mod(N, 8),
+    capturePawn(Board, BoardBR, Player, N1),
+    findPlayerBottomRight(BoardBR, NewBoard, Player, N1),
+    !.
+
+% BOTTOM
+captureBottom(Board, NewBoard, Player, N) :-
+    findPlayerBottom(Board, NewBoard, Player, N),
+    !.
+captureBottom(Board, NewBoard, _, _) :-
+    Board = NewBoard,
+    !.
+findPlayerBottom(Board, NewBoard, Player, N) :-
+    Board = NewBoard,
+    N1 is N + 8,
+    nth0(N1, Board, PlayerN1),
+    nonvar(PlayerN1),
+    PlayerN1 == Player,
+    !.
+findPlayerBottom(Board, NewBoard, Player, N) :-
+    N1 is N + 8,
+    capturePawn(Board, BoardR, Player, N1),
+    findPlayerBottom(BoardR, NewBoard, Player, N1),
+    !.
+
+% BOTTOM-LEFT
+captureBottomLeft(Board, NewBoard, Player, N) :-
+    findPlayerBottomLeft(Board, NewBoard, Player, N),
+    !.
+captureBottomLeft(Board, NewBoard, _, _) :-
+    Board = NewBoard,
+    !.
+findPlayerBottomLeft(Board, NewBoard, Player, N) :-
+    Board = NewBoard,
+    N1 is N + 7,
+    mod(N1, 8) < mod(N, 8),
+    nth0(N1, Board, PlayerN1),
+    nonvar(PlayerN1),
+    PlayerN1 == Player,
+    !.
+findPlayerBottomLeft(Board, NewBoard, Player, N) :-
+    N1 is N + 7,
+    mod(N1, 8) < mod(N, 8),
+    capturePawn(Board, BoardBL, Player, N1),
+    findPlayerBottomLeft(BoardBL, NewBoard, Player, N1),
+    !.
+
+% LEFT
+captureLeft(Board, NewBoard, Player, N) :-
+    findPlayerLeft(Board, NewBoard, Player, N),
+    !.
+captureLeft(Board, NewBoard, _, _) :-
+    Board = NewBoard,
+    !.
+findPlayerLeft(Board, NewBoard, Player, N) :-
+    Board = NewBoard,
+    N1 is N - 1,
+    mod(N1, 8) < mod(N, 8),
+    nth0(N1, Board, PlayerN1),
+    nonvar(PlayerN1),
+    PlayerN1 == Player,
+    !.
+findPlayerLeft(Board, NewBoard, Player, N) :-
+    N1 is N - 1,
+    mod(N1, 8) < mod(N, 8),
+    capturePawn(Board, BoardL, Player, N1),
+    findPlayerLeft(BoardL, NewBoard, Player, N1),
+    !.
+
+% TOP-LEFT
+captureTopLeft(Board, NewBoard, Player, N) :-
+    findPlayerTopLeft(Board, NewBoard, Player, N),
+    !.
+captureTopLeft(Board, NewBoard, _, _) :-
+    Board = NewBoard,
+    !.
+findPlayerTopLeft(Board, NewBoard, Player, N) :-
+    Board = NewBoard,
+    N1 is N - 9,
+    mod(N1, 8) < mod(N, 8),
+    nth0(N1, Board, PlayerN1),
+    nonvar(PlayerN1),
+    PlayerN1 == Player,
+    !.
+findPlayerTopLeft(Board, NewBoard, Player, N) :-
+    N1 is N - 9,
+    mod(N1, 8) < mod(N, 8),
+    capturePawn(Board, BoardTL, Player, N1),
+    findPlayerTopLeft(BoardTL, NewBoard, Player, N1),
+    !.
+
+% CAPTURE PAWN
+% fail if element at position N is var (e.g. there is no pawn)
+capturePawn(Board, NewBoard, Player, N) :-
+    changePlayer(Player, OtherPlayer),
+    nth0(N, Board, P),
+    nonvar(P),
+    P == OtherPlayer,
+    replaceInThePosition(Board, N, Player, NewBoard),
+    !.
+
+replaceInThePosition([_|T],0,E,[E|T]).
+replaceInThePosition([H|T],P,E,[H|R]) :-
+    P > 0, NP is P-1, replaceInThePosition(T,NP,E,R).
+
+applyMove(Board, NewBoard) :-
+    retract(board(Board)), 
+    assert(board(NewBoard)).
+
+changePlayer('x', 'o').
+changePlayer('o', 'x').
+
+play(_) :-
+    board(Board),
+    gameover(Board, Winner),
+    !,
+    write('Game is Over. Winner: '), 
+    writeln(Winner), 
+    displayBoard(Board).
+
+play(Player):-
+    write('New turn for: '), writeln(Player),
+    board(Board),
+    displayBoard(Board),
+    ia(Board, Move, Player),
+    playMove(Board, NewBoard, Player, Move),
+    applyMove(Board, NewBoard),
+    changePlayer(Player, NextPlayer),
+    play(NextPlayer).
+
+ia(Board, Index, Player) :-
+    repeat,
+    Index is random(64),
+    %read(Index),
+    nth0(Index, Board, Elem), 
+    var(Elem),
+    isPositionPlayable(Board, Player, Index),
+    !.
+
+init:-
+    length(Board, 64), 
+    nth0(27, Board, 'x'),
+    nth0(28, Board, 'o'),
+    nth0(35, Board, 'o'),
+    nth0(36, Board, 'x'),
+    assert(board(Board)),
+    displayBoard(Board),
+    play('x').
+
+
