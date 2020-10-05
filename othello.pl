@@ -1,3 +1,5 @@
+:- include('ia.pl').
+
 :- dynamic board/1.
 
 gameover(Board, Winner) :-
@@ -18,20 +20,18 @@ winner(Board, 'o') :-
     !.
 
 isFinished(Board) :-
-    not(canplay(Board, 'x')),
-    not(canplay(Board, 'o')).
+    not(playablePositions(Board, 'x', _)),
+    not(playablePositions(Board, 'o', _)).
 
-canplay(Board, Player) :-
-    canplay(Board, Board, Player, 0).
-canplay(Board, [H|_], Player, N) :-
+playablePositions(Board, Player, X) :-
+    playablePositions(Board, Board, Player, 0, X).
+playablePositions(Board, [H|_], Player, N, X) :-
     var(H),
     isPositionPlayable(Board, Player, N),
-    !.
-canplay(Board, [_|T], Player, N) :-
+    X is N.
+playablePositions(Board, [_|T], Player, N, X) :-
     N1 is N + 1,
-    N1 < 64,
-    canplay(Board, T, Player, N1),
-    !.
+    playablePositions(Board, T, Player, N1, X).
 
 isPositionPlayable(Board, Player, N) :-
     N1 is N - 8,
@@ -325,34 +325,42 @@ applyMove(Board, NewBoard) :-
 changePlayer('x', 'o').
 changePlayer('o', 'x').
 
+% Check if game is over
 play(_) :-
     board(Board),
     gameover(Board, Winner),
-    !,
     write('Game is Over. Winner: '), 
     writeln(Winner), 
-    displayBoard(Board).
+    displayBoard(Board),
+    !.
 
-play(Player):-
+% Player can play
+play(Player) :-
     write('New turn for: '), writeln(Player),
     board(Board),
     displayBoard(Board),
+    playablePositions(Board, Player, _),
     ia(Board, Move, Player),
     playMove(Board, NewBoard, Player, Move),
     applyMove(Board, NewBoard),
     changePlayer(Player, NextPlayer),
-    play(NextPlayer).
-
-ia(Board, Index, Player) :-
-    repeat,
-    Index is random(64),
-    %read(Index),
-    nth0(Index, Board, Elem), 
-    var(Elem),
-    isPositionPlayable(Board, Player, Index),
+    play(NextPlayer),
     !.
 
-init:-
+% Player can't play, change player
+play(Player) :-
+    changePlayer(Player, NextPlayer),
+    play(NextPlayer),
+    !.
+
+ia(Board, Move, Player) :-
+    repeat,
+    findMove(Board, Player, Move),
+    nth0(Move, Board, Elem), 
+    var(Elem),
+    isPositionPlayable(Board, Player, Move).
+
+init :-
     length(Board, 64), 
     nth0(27, Board, 'x'),
     nth0(28, Board, 'o'),
@@ -361,5 +369,8 @@ init:-
     assert(board(Board)),
     displayBoard(Board),
     play('x').
+
+
+
 
 
