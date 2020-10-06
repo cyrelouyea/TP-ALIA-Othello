@@ -1,5 +1,5 @@
-:- include('ia_x.pl').
-:- include('ia_o.pl').
+:- include('ia_random.pl').
+:- include('ia_nb_captures.pl').
 
 :- dynamic board/1.
 
@@ -356,7 +356,7 @@ play(Player) :-
 
 ia(Board, Move, Player) :-
     repeat,
-    findMove_x(Board, Player, Move),
+    findMove(Board, Player, Move),
     nth0(Move, Board, Elem), 
     var(Elem),
     isPositionPlayable(Board, Player, Move).
