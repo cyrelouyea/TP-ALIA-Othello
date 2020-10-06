@@ -1,5 +1,5 @@
-:- include('ia_random.pl').
-:- include('ia_nb_captures.pl').
+:- include('ia_minimax.prolog').
+:- include('ia_random.prolog').
 
 :- dynamic board/1.
 
@@ -10,14 +10,16 @@ gameover(Board, 'Draw') :-
     isFinished(Board).
 
 winner(Board, 'x') :- 
-    nbPawnPlayer(Board, 'x', NbPawn),
     isFinished(Board),
-    NbPawn > 32,
+    nbPawnPlayer(Board, 'x', NbPawnX),
+    nbPawnPlayer(Board, 'o', NbPawnO),
+    NbPawnX > NbPawnO,
     !.
 winner(Board, 'o') :- 
-    nbPawnPlayer(Board, 'o', NbPawn),
     isFinished(Board),
-    NbPawn > 32,
+    nbPawnPlayer(Board, 'x', NbPawnX),
+    nbPawnPlayer(Board, 'o', NbPawnO),
+    NbPawnO > NbPawnX,
     !.
 
 isFinished(Board) :-
@@ -117,7 +119,7 @@ displayBoard(Board) :-
     writeln('*--------------*').
 
 playMove(Board, NewBoard, Player, N) :-
-    Board = NewBoardWithoutCapture,
+    copy_term(Board, NewBoardWithoutCapture),
     nth0(N, NewBoardWithoutCapture, Player),
     applyCapture(NewBoardWithoutCapture, NewBoard, Player, N),
     !.
@@ -372,7 +374,5 @@ init :-
     displayBoard(Board),
     play('x').
 
-
-
-
-
+reset :-
+    retract(board(Board)).

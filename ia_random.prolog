@@ -1,6 +1,6 @@
 % Random strategy
-findMove(Board, 'o', Move) :-
-    findMove_o(Board, 'o', Move).
+findMove(Board, 'x', Move) :-
+    findMove_o(Board, 'x', Move).
 
 findMove_o(Board, _, Move) :-
     length(Board, Length),
