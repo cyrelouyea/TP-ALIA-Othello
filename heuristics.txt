@@ -1,3 +1,3 @@
 Idées:
   1. Le prochain move qui fera gagner le plus de points
-  2. 
+  2. minimax: https://guides.net4tv.com/games/how-win-reversi 

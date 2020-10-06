@@ -1,16 +1,12 @@
-% Random strategy
-% 
-% findMove(Board, _, Move) :-
-%     length(Board, Length),
-%     Move is random(Length).
-
-
 % The greatest number of captures possible
 %
-findMove(Board, Player, Move) :-
+findMove(Board, 'x', Move) :-
+    findMove_x(Board, 'x', Move).
+
+findMove_x(Board, Player, Move) :-
     bagof(X, playablePositions(Board, Player, X), L),
-    findMaxPoint(Board, Player, L, Move, NbPoint),
-    writeln(NbPoint).
+    findMaxPoint(Board, Player, L, Move, NbPoint).
+    % writeln(NbPoint).
 
 findMaxPoint(Board, Player, [H], H, NbPoint) :-
     replaceInThePosition(Board, H, Player, NewBoard),
