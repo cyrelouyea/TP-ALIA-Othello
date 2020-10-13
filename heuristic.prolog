@@ -1,2 +1,2 @@
-heuristic(Board, Player, Opponent, Score) :-
+heuristic(Board, Player, Opponent, Turn, Score) :-
     % heuristic

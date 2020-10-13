@@ -339,10 +339,10 @@ play(_) :-
 
 % Player can play
 play(Player) :-
-    write('New turn for: '), writeln(Player),
     board(Board),
-    displayBoard(Board),
     playablePositions(Board, Player, _),
+    write('New turn for: '), writeln(Player),
+    displayBoard(Board),
     ia(Board, Move, Player),
     playMove(Board, NewBoard, Player, Move),
     applyMove(Board, NewBoard),
@@ -373,6 +373,3 @@ init :-
     assert(board(Board)),
     displayBoard(Board),
     play('x').
-
-reset :-
-    retract(board(Board)).
