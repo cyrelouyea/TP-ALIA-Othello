@@ -1,3 +1,4 @@
+:- include('heuristic_b1.prolog').
 :- include('ia_minimax.prolog').
 :- include('ia_random.prolog').
 
