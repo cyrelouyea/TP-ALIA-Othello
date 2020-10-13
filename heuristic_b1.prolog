@@ -12,7 +12,7 @@ heuristic(Board, Player, Opponent, Turn, Score) :-
 
     get_score(Board, Value, Player, Opponent, PScore),
     get_score(Board, Value, Opponent, Player, OScore),
-    Score is PScore - OScore.
+    Score is (PScore - OScore)/248.
 
 
 get_score([HB|Board], [HV|Value], Player, Opponent, Score) :-
