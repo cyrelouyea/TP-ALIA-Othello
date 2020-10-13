@@ -1,4 +1,3 @@
-
 findMove(Board, 'o', Move) :-
     findMove_o(Board, 'o', 'x', Move).
 
@@ -6,11 +5,6 @@ findMove_o(Board, Player, Opponent, Move) :-
     minimax(Board, 4, Player, Opponent, Player, Score, Move),
     write('Score: '), write(Score), writeln(''),
     write('Move: '), write(Move), writeln('').
-
-heuristic(Board, Player, Opponent, Turn, Score) :-
-    nbPawnPlayer(Board, Player, ScoreP),
-    nbPawnPlayer(Board, Opponent, ScoreO),
-    Score is ScoreP - ScoreO.
 
 minimax(Board, 0, Player, Opponent, Turn, Score, _) :-
     heuristic(Board, Player, Opponent, Turn, Score),
