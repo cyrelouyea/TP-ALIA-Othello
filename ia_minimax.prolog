@@ -70,21 +70,40 @@ minScoreChild(Board, [H|PlayablePositions], Depth, Player, Opponent, Turn, Score
     minScoreChild(Board, PlayablePositions, Depth, Player, Opponent, Turn, ChildrenScore, ChildrenMove),
     minWithPosition(ChildScore, H, ChildrenScore, ChildrenMove, Score, Move).
 
+
+
 minWithPosition(A, PosA, B, _, Min, PosMin) :-
-    A =< B,
+    A < B,
     Min is A,
     PosMin is PosA.
 minWithPosition(A, _, B, PosB, Min, PosMin) :-
     A > B,
     Min is B,
     PosMin is PosB.
+minWithPosition(A, PosA, B, PosB, Min, PosMin) :-
+    A == B,
+    randomBetweenTwo(A, PosA, B, PosB, Min, PosMin).
 
 maxWithPosition(A, PosA, B, _, Max, PosMax) :-
-    A >= B,
+    A > B,
     Max is A,
     PosMax is PosA.
 maxWithPosition(A, _, B, PosB, Max, PosMax) :-
     A < B,
     Max is B,
     PosMax is PosB.
+maxWithPosition(A, PosA, B, PosB, Min, PosMin) :-
+    A == B,
+    randomBetweenTwo(A, PosA, B, PosB, Min, PosMin).
 
+
+randomBetweenTwo(A, PosA, _, _, V, PosV) :-
+    I is random(2),
+    I == 0,
+    V is A,
+    PosV is PosA,
+    !.
+randomBetweenTwo(_, _, B, PosB, V, PosV) :-
+    V is B,
+    PosV is PosB,
+    !.
