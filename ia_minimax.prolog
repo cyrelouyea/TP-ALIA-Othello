@@ -1,8 +1,7 @@
-findMove(Board, 'o', Move) :-
-    findMove_o(Board, 'o', 'x', Move).
-
-findMove_o(Board, Player, Opponent, Move) :-
-    minimax(Board, 4, Player, Opponent, Player, Score, Move),
+findMove(Board, Player, Move) :-
+    depth(Player, Depth),
+    changePlayer(Player, Opponent),
+    minimax(Board, Depth, Player, Opponent, Player, Score, Move),
     write('Score: '), write(Score), writeln(''),
     write('Move: '), write(Move), writeln('').
 
