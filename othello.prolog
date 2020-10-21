@@ -3,6 +3,9 @@
 :- include('ia_random.prolog').
 
 :- dynamic board/1.
+:- dynamic ponderation/4.
+:- dynamic depth/2.
+:- dynamic showTrace/1.
 
 gameover(Board, Winner) :-
     winner(Board, Winner), 
@@ -333,18 +336,54 @@ changePlayer('o', 'x').
 play(_) :-
     board(Board),
     gameover(Board, Winner),
-    write('Game is Over. Winner: '), 
+    (
+        showTrace(true) ->
+        (
+            write('Game is Over. Winner: ')
+        );  
+        (
+            write('Winner: ')
+        )
+    ),
     writeln(Winner), 
-    displayBoard(Board),
+    (
+        showTrace(true) ->
+        (
+            displayBoard(Board)
+        );  
+        (
+            true
+        )
+    ),
     !.
 
 % Player can play
 play(Player) :-
     board(Board),
     playablePositions(Board, Player, _),
-    write('New turn for: '), writeln(Player),
-    displayBoard(Board),
+    (
+        showTrace(true) ->
+        (
+            write('New turn for: '), writeln(Player),
+            displayBoard(Board)
+        );  
+        (
+            write(Player), write(' ')
+        )
+    ),
+    get_time(StartTime),
     ia(Board, Move, Player),
+    get_time(EndTime),
+    Time is EndTime-StartTime, 
+    (
+        showTrace(true) ->
+        (
+            write('Time: '), writeln(Time)
+        );  
+        (
+            writeln(Time)
+        )
+    ),
     playMove(Board, NewBoard, Player, Move),
     applyMove(Board, NewBoard),
     changePlayer(Player, NextPlayer),
@@ -366,11 +405,45 @@ ia(Board, Move, Player) :-
 
 
 init :-
+    initArgs,
     length(Board, 64), 
     nth0(27, Board, 'x'),
     nth0(28, Board, 'o'),
     nth0(35, Board, 'o'),
     nth0(36, Board, 'x'),
     assert(board(Board)),
-    displayBoard(Board),
     play('x').
+
+initArgs :-
+    current_prolog_flag(argv, Argv),
+    [Player|Rest1] = Argv,
+    [P1|Rest2] = Rest1,
+    [P2|Rest3] = Rest2,
+    [P3|Rest4] = Rest3,
+    [PDepth|Rest5] = Rest4,
+    [Opponent|Rest6] = Rest5,
+    [O1|Rest7] = Rest6,
+    [O2|Rest8] = Rest7,
+    [O3|Rest9] = Rest8,
+    [ODepth|Rest10] = Rest9,
+    [ShowTrace] = Rest10,
+    
+    atom_number(P1, NP1),
+    atom_number(P2, NP2),
+    atom_number(P3, NP3),
+    atom_number(PDepth, NPDepth),
+
+    atom_number(O1, NO1),
+    atom_number(O2, NO2),
+    atom_number(O3, NO3),
+    atom_number(ODepth, NODepth),
+
+    assert(ponderation(Player, NP1, NP2, NP3)),
+    assert(depth(Player, NPDepth)),
+    assert(ponderation(Opponent, NO1, NO2, NO3)),
+    assert(depth(Opponent, NODepth)),
+    assert(showTrace(ShowTrace)).
+
+reset :-
+    board(Board),
+    retract(board(Board)).

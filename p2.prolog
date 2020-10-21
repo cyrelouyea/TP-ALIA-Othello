@@ -11,6 +11,6 @@ inv([],[]).
 inv([X|L],R):-append(Z,[X],R),inv(L,Z),!.
 
 composante(1,X,[X|_]).
-composante(I,X,[_|L]):-composante(I1,X,L),I is I1+1.
+composante(I,X,[_|L]):-composante(J,X,L),I is J+1.
 
 list2ens([],[]).

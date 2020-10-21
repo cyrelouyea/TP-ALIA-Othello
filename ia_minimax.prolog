@@ -2,8 +2,14 @@ findMove(Board, Player, Move) :-
     depth(Player, Depth),
     changePlayer(Player, Opponent),
     minimax(Board, Depth, Player, Opponent, Player, Score, Move),
-    write('Score: '), write(Score), writeln(''),
-    write('Move: '), write(Move), writeln('').
+    (
+        showTrace(true) ->
+        (
+            write('Score: '), write(Score), writeln(''),
+            write('Move: '), write(Move), writeln('')
+        );true
+    ).
+    
 
 minimax(Board, 0, Player, Opponent, Turn, Score, _) :-
     heuristic(Board, Player, Opponent, Turn, Score),

@@ -7,13 +7,6 @@ heuristic_nbPawns(Board, Player, Opponent, Turn, Score) :-
     nbPawnPlayer(Board, Opponent, ScoreO),
     Score is (ScoreP - ScoreO) / 64.
 
-
-ponderation('x', 0, 1, 1).
-ponderation('o', 1, 0, 0).
-
-depth('x', 3).
-depth('o', 3).
-
 heuristic(Board, Player, Opponent, Turn, Score) :-
 
     ponderation(Player, A, B, C),
