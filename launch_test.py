@@ -99,7 +99,11 @@ class Parameters:
 with open(sys.argv[1], 'r') as f:
     nb_times = int(f.readline().strip())
     for line in f.readlines():
-        p = Parameters(*[int(l) for l in line.strip().split()])
+        nbs = line.strip().split()
+        p = Parameters(
+            float(nbs[0]), float(nbs[1]), float(nbs[2]), int(nbs[3]), 
+            float(nbs[4]), float(nbs[5]), float(nbs[6]), int(nbs[7])
+        )
         for result in p.execute(nb_times):
             print(result)
         for result in p.reverse().execute(nb_times):
