@@ -10,9 +10,9 @@ heuristic_nbPawns(Board, Player, Opponent, Turn, Score) :-
 heuristic(Board, Player, Opponent, Turn, Score) :-
 
     ponderation(Player, A, B, C),
-    heuristic_nbPawns(Board, Player, Opponent, Turn, ScoreA),
-    heuristic_mobility(Board, Player, Opponent, Turn, ScoreB),
-    heuristic_b1(Board, Player, Opponent, Turn, ScoreC),
+    (A > 0 -> heuristic_nbPawns(Board, Player, Opponent, Turn, ScoreA); ScoreA is 0),
+    (B > 0 -> heuristic_mobility(Board, Player, Opponent, Turn, ScoreB); ScoreB is 0),
+    (C > 0 -> heuristic_b1(Board, Player, Opponent, Turn, ScoreC); ScoreC is 0),
     Score is A * ScoreA + B * ScoreB + C * ScoreC.
 
 
