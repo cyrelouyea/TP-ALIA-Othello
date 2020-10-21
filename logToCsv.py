@@ -12,18 +12,13 @@ with open('logs.csv', 'a', newline='') as file:
         
         f = open(filename, "r")
         for row in f:
+            row = row.strip().replace('\n', '')
             datas = row.split(" ")
             myList = []    
             for data in datas : 
                 value = data.split("=")
-                if(value[0]=="mean_time") :
-                    mean_time = value[1]
-                    mean_time = mean_time[:-1]
-                    myList.append(mean_time)     
-                else : 
-                    myList.append(value[1])
+                myList.append(value[1])
                 
-            print(myList)
             writer.writerow(myList)
 
 
