@@ -1,4 +1,4 @@
-heuristic_b1(Board, Player, Opponent, Turn, Score) :-
+heuristic_valuation(Board, Player, Opponent, Turn, Score) :-
     Value = [
         10, -10, 5, 1, 1, 5, -10, 10,
         -10, -10, 1, 1, 1, 1, -10, -10, 

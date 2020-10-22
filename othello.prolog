@@ -1,6 +1,5 @@
 :- include('heuristic.prolog').
 :- include('ia_minimax.prolog').
-:- include('ia_random.prolog').
 
 :- dynamic board/1.
 :- dynamic ponderation/4.
